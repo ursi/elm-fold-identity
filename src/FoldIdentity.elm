@@ -51,11 +51,11 @@ type alias Submodule a b c d e f =
     , map3 : (b -> c -> d -> a) -> Maybe b -> Maybe c -> Maybe d -> a
     , map4 : (b -> c -> d -> e -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> a
     , map5 : (b -> c -> d -> e -> f -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> a
-    , ifMap : (b -> a) -> Bool -> Maybe b -> a
-    , ifMap2 : (b -> c -> a) -> Bool -> Maybe b -> Maybe c -> a
-    , ifMap3 : (b -> c -> d -> a) -> Bool -> Maybe b -> Maybe c -> Maybe d -> a
-    , ifMap4 : (b -> c -> d -> e -> a) -> Bool -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> a
-    , ifMap5 : (b -> c -> d -> e -> f -> a) -> Bool -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> a
+    , ifMap : (b -> a) -> Maybe b -> Bool -> a
+    , ifMap2 : (b -> c -> a) -> Maybe b -> Maybe c -> Bool -> a
+    , ifMap3 : (b -> c -> d -> a) -> Maybe b -> Maybe c -> Maybe d -> Bool -> a
+    , ifMap4 : (b -> c -> d -> e -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Bool -> a
+    , ifMap5 : (b -> c -> d -> e -> f -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> Bool -> a
     }
 
 
@@ -168,8 +168,8 @@ map5 identity toValue mb mc md me mf =
             identity
 
 
-ifMap : a -> (b -> a) -> Bool -> Maybe b -> a
-ifMap identity toValue condition maybeValue =
+ifMap : a -> (b -> a) -> Maybe b -> Bool -> a
+ifMap identity toValue maybeValue condition =
     if condition then
         case maybeValue of
             Just a ->
@@ -182,8 +182,8 @@ ifMap identity toValue condition maybeValue =
         identity
 
 
-ifMap2 : a -> (b -> c -> a) -> Bool -> Maybe b -> Maybe c -> a
-ifMap2 identity toValue condition mb mc =
+ifMap2 : a -> (b -> c -> a) -> Maybe b -> Maybe c -> Bool -> a
+ifMap2 identity toValue mb mc condition =
     if condition then
         case mb of
             Just b ->
@@ -201,8 +201,8 @@ ifMap2 identity toValue condition mb mc =
         identity
 
 
-ifMap3 : a -> (b -> c -> d -> a) -> Bool -> Maybe b -> Maybe c -> Maybe d -> a
-ifMap3 identity toValue condition mb mc md =
+ifMap3 : a -> (b -> c -> d -> a) -> Maybe b -> Maybe c -> Maybe d -> Bool -> a
+ifMap3 identity toValue mb mc md condition =
     if condition then
         case mb of
             Just b ->
@@ -225,8 +225,8 @@ ifMap3 identity toValue condition mb mc md =
         identity
 
 
-ifMap4 : a -> (b -> c -> d -> e -> a) -> Bool -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> a
-ifMap4 identity toValue condition mb mc md me =
+ifMap4 : a -> (b -> c -> d -> e -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Bool -> a
+ifMap4 identity toValue mb mc md me condition =
     if condition then
         case mb of
             Just b ->
@@ -254,8 +254,8 @@ ifMap4 identity toValue condition mb mc md me =
         identity
 
 
-ifMap5 : a -> (b -> c -> d -> e -> f -> a) -> Bool -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> a
-ifMap5 identity toValue condition mb mc md me mf =
+ifMap5 : a -> (b -> c -> d -> e -> f -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> Bool -> a
+ifMap5 identity toValue mb mc md me mf condition =
     if condition then
         case mb of
             Just b ->
