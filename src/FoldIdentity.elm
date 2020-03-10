@@ -1,22 +1,20 @@
 module FoldIdentity exposing
-    ( Submodule
-    , array
-    , bool
-    , css
-    , dict
-    , html
-    , htmlAttributes
-    , htmlStyled
-    , htmlStyledAttributes
-    , list
-    , map
-    , map2
-    , map3
-    , map4
-    , map5
-    , string
-    , submodule
+    ( Operand(..)
+    , map, map2, map3, map4, map5, andThen
+    , bool, maybe, string, list, array, dict
+    , resolve
+    , css, html, htmlAttributes, htmlStyled, htmlStyledAttributes
     )
+
+{-|
+
+@docs Operand
+@docs map, map2, map3, map4, map5, andThen
+@docs bool, maybe, string, list, array, dict, set
+@docs resolve
+@docs css, html, htmlAttributes, htmlStyled, htmlStyledAttributes
+
+-}
 
 import Array exposing (Array)
 import Css
@@ -28,201 +26,215 @@ import Html.Styled.Attributes
 import Set exposing (Set)
 
 
-type alias Submodule i a b c d e =
-    { identity : i
-    , map : (a -> i) -> Maybe a -> i
-    , map2 : (a -> b -> i) -> Maybe a -> Maybe b -> i
-    , map3 : (a -> b -> c -> i) -> Maybe a -> Maybe b -> Maybe c -> i
-    , map4 : (a -> b -> c -> d -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> i
-    , map5 : (a -> b -> c -> d -> e -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> i
-    }
+type Operand a
+    = Identity
+    | NotIdentity a
 
 
-submodule : i -> Submodule i a b c d e
-submodule identity =
-    { identity = identity
-    , map = map identity
-    , map2 = map2 identity
-    , map3 = map3 identity
-    , map4 = map4 identity
-    , map5 = map5 identity
-    }
+resolve : i -> Operand i -> i
+resolve ident operand =
+    case operand of
+        NotIdentity value ->
+            value
+
+        Identity ->
+            ident
 
 
-map : i -> (a -> i) -> Maybe a -> i
-map identity toValue maybeValue =
-    case maybeValue of
-        Just a ->
-            toValue a
+map : (a -> b) -> Operand a -> Operand b
+map f oa =
+    case oa of
+        NotIdentity a ->
+            NotIdentity <| f a
 
-        Nothing ->
-            identity
-
-
-map2 : a -> (b -> c -> a) -> Maybe b -> Maybe c -> a
-map2 identity toValue mb mc =
-    case mb of
-        Just b ->
-            case mc of
-                Just c ->
-                    toValue b c
-
-                Nothing ->
-                    identity
-
-        Nothing ->
-            identity
+        Identity ->
+            Identity
 
 
-map3 : a -> (b -> c -> d -> a) -> Maybe b -> Maybe c -> Maybe d -> a
-map3 identity toValue mb mc md =
-    case mb of
-        Just b ->
-            case mc of
-                Just c ->
-                    case md of
-                        Just d ->
-                            toValue b c d
+map2 : (a -> b -> c) -> Operand a -> Operand b -> Operand c
+map2 f oa ob =
+    case oa of
+        NotIdentity a ->
+            case ob of
+                NotIdentity b ->
+                    NotIdentity <| f a b
 
-                        Nothing ->
-                            identity
+                Identity ->
+                    Identity
 
-                Nothing ->
-                    identity
-
-        Nothing ->
-            identity
+        Identity ->
+            Identity
 
 
-map4 : a -> (b -> c -> d -> e -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> a
-map4 identity toValue mb mc md me =
-    case mb of
-        Just b ->
-            case mc of
-                Just c ->
-                    case md of
-                        Just d ->
-                            case me of
-                                Just e ->
-                                    toValue b c d e
+map3 : (a -> b -> c -> d) -> Operand a -> Operand b -> Operand c -> Operand d
+map3 f oa ob oc =
+    case oa of
+        NotIdentity a ->
+            case ob of
+                NotIdentity b ->
+                    case oc of
+                        NotIdentity c ->
+                            NotIdentity <| f a b c
 
-                                Nothing ->
-                                    identity
+                        Identity ->
+                            Identity
 
-                        Nothing ->
-                            identity
+                Identity ->
+                    Identity
 
-                Nothing ->
-                    identity
-
-        Nothing ->
-            identity
+        Identity ->
+            Identity
 
 
-map5 : a -> (b -> c -> d -> e -> f -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> a
-map5 identity toValue mb mc md me mf =
-    case mb of
-        Just b ->
-            case mc of
-                Just c ->
-                    case md of
-                        Just d ->
-                            case me of
-                                Just e ->
-                                    case mf of
-                                        Just f ->
-                                            toValue b c d e f
+map4 : (a -> b -> c -> d -> e) -> Operand a -> Operand b -> Operand c -> Operand d -> Operand e
+map4 f oa ob oc od =
+    case oa of
+        NotIdentity a ->
+            case ob of
+                NotIdentity b ->
+                    case oc of
+                        NotIdentity c ->
+                            case od of
+                                NotIdentity d ->
+                                    NotIdentity <| f a b c d
 
-                                        Nothing ->
-                                            identity
+                                Identity ->
+                                    Identity
 
-                                Nothing ->
-                                    identity
+                        Identity ->
+                            Identity
 
-                        Nothing ->
-                            identity
+                Identity ->
+                    Identity
 
-                Nothing ->
-                    identity
-
-        Nothing ->
-            identity
+        Identity ->
+            Identity
 
 
-bool : Bool -> Maybe Bool
+map5 : (a -> b -> c -> d -> e -> f) -> Operand a -> Operand b -> Operand c -> Operand d -> Operand e -> Operand f
+map5 f oa ob oc od of_ =
+    case oa of
+        NotIdentity a ->
+            case ob of
+                NotIdentity b ->
+                    case oc of
+                        NotIdentity c ->
+                            case od of
+                                NotIdentity d ->
+                                    case of_ of
+                                        NotIdentity f_ ->
+                                            NotIdentity <| f a b c d f_
+
+                                        Identity ->
+                                            Identity
+
+                                Identity ->
+                                    Identity
+
+                        Identity ->
+                            Identity
+
+                Identity ->
+                    Identity
+
+        Identity ->
+            Identity
+
+
+andThen : (a -> Operand b) -> Operand a -> Operand b
+andThen f oa =
+    case oa of
+        NotIdentity a ->
+            f a
+
+        Identity ->
+            Identity
+
+
+bool : Bool -> Operand Bool
 bool bool_ =
     if bool_ then
-        Just bool_
+        NotIdentity bool_
 
     else
-        Nothing
+        Identity
 
 
-string : String -> Maybe String
+maybe : Maybe a -> Operand a
+maybe ma =
+    case ma of
+        Just a ->
+            NotIdentity a
+
+        Nothing ->
+            Identity
+
+
+string : String -> Operand String
 string str =
     if String.isEmpty str then
-        Nothing
+        Identity
 
     else
-        Just str
+        NotIdentity str
 
 
-list : List a -> Maybe (List a)
+list : List a -> Operand (List a)
 list list_ =
     if List.isEmpty list_ then
-        Nothing
+        Identity
 
     else
-        Just list_
+        NotIdentity list_
 
 
-array : Array a -> Maybe (Array a)
+array : Array a -> Operand (Array a)
 array array_ =
     if Array.isEmpty array_ then
-        Nothing
+        Identity
 
     else
-        Just array_
+        NotIdentity array_
 
 
-dict : Dict k v -> Maybe (Dict k v)
+dict : Dict k v -> Operand (Dict k v)
 dict dict_ =
     if Dict.isEmpty dict_ then
-        Nothing
+        Identity
 
     else
-        Just dict_
+        NotIdentity dict_
 
 
-set : Set a -> Maybe (Set a)
+set : Set a -> Operand (Set a)
 set set_ =
     if Set.isEmpty set_ then
-        Nothing
+        Identity
 
     else
-        Just set_
+        NotIdentity set_
 
 
-css : Submodule Css.Style b c d e f
+css : Css.Style
 css =
-    submodule <| Css.batch []
+    Css.batch []
 
 
-html : Submodule (Html.Html msg) b c d e f
+html : Html.Html msg
 html =
-    submodule <| Html.text ""
+    Html.text ""
 
 
-htmlAttributes : Submodule (Html.Attribute msg) b c d e f
+htmlAttributes : Html.Attribute msg
 htmlAttributes =
-    submodule <| Html.Attributes.classList []
+    Html.Attributes.classList []
 
 
-htmlStyled : Submodule (Html.Styled.Html msg) b c d e f
+htmlStyled : Html.Styled.Html msg
 htmlStyled =
-    submodule <| Html.Styled.text ""
+    Html.Styled.text ""
 
 
-htmlStyledAttributes : Submodule (Html.Styled.Attribute msg) b c d e f
+htmlStyledAttributes : Html.Styled.Attribute msg
 htmlStyledAttributes =
-    submodule <| Html.Styled.Attributes.classList []
+    Html.Styled.Attributes.classList []
