@@ -1,74 +1,55 @@
 module FoldIdentity exposing
     ( Submodule
+    , array
+    , bool
     , css
+    , dict
     , html
     , htmlAttributes
     , htmlStyled
     , htmlStyledAttributes
-    , ifMap
-    , ifMap2
-    , ifMap3
-    , ifMap4
-    , ifMap5
-    , if_
+    , list
     , map
     , map2
     , map3
     , map4
     , map5
+    , string
     , submodule
     )
 
+import Array exposing (Array)
 import Css
+import Dict exposing (Dict)
 import Html
 import Html.Attributes
 import Html.Styled
 import Html.Styled.Attributes
+import Set exposing (Set)
 
 
-submodule : a -> Submodule a b c d e f
+type alias Submodule i a b c d e =
+    { identity : i
+    , map : (a -> i) -> Maybe a -> i
+    , map2 : (a -> b -> i) -> Maybe a -> Maybe b -> i
+    , map3 : (a -> b -> c -> i) -> Maybe a -> Maybe b -> Maybe c -> i
+    , map4 : (a -> b -> c -> d -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> i
+    , map5 : (a -> b -> c -> d -> e -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> i
+    }
+
+
+submodule : i -> Submodule i a b c d e
 submodule identity =
     { identity = identity
-    , if_ = if_ identity
     , map = map identity
     , map2 = map2 identity
     , map3 = map3 identity
     , map4 = map4 identity
     , map5 = map5 identity
-    , ifMap = ifMap identity
-    , ifMap2 = ifMap2 identity
-    , ifMap3 = ifMap3 identity
-    , ifMap4 = ifMap4 identity
-    , ifMap5 = ifMap5 identity
     }
 
 
-type alias Submodule a b c d e f =
-    { identity : a
-    , if_ : (Bool -> a) -> Bool -> a
-    , map : (b -> a) -> Maybe b -> a
-    , map2 : (b -> c -> a) -> Maybe b -> Maybe c -> a
-    , map3 : (b -> c -> d -> a) -> Maybe b -> Maybe c -> Maybe d -> a
-    , map4 : (b -> c -> d -> e -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> a
-    , map5 : (b -> c -> d -> e -> f -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> a
-    , ifMap : (b -> a) -> Maybe b -> Bool -> a
-    , ifMap2 : (b -> c -> a) -> Maybe b -> Maybe c -> Bool -> a
-    , ifMap3 : (b -> c -> d -> a) -> Maybe b -> Maybe c -> Maybe d -> Bool -> a
-    , ifMap4 : (b -> c -> d -> e -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Bool -> a
-    , ifMap5 : (b -> c -> d -> e -> f -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> Bool -> a
-    }
-
-
-if_ : a -> (Bool -> a) -> Bool -> a
-if_ identity toValue condition =
-    if condition then
-        toValue condition
-
-    else
-        identity
-
-
-map : a -> (b -> a) -> Maybe b -> a
+map : i -> (a -> i) -> Maybe a -> i
 map identity toValue maybeValue =
     case maybeValue of
         Just a ->
@@ -168,124 +149,58 @@ map5 identity toValue mb mc md me mf =
             identity
 
 
-ifMap : a -> (b -> a) -> Maybe b -> Bool -> a
-ifMap identity toValue maybeValue condition =
-    if condition then
-        case maybeValue of
-            Just a ->
-                toValue a
-
-            Nothing ->
-                identity
+bool : Bool -> Maybe Bool
+bool bool_ =
+    if bool_ then
+        Just bool_
 
     else
-        identity
+        Nothing
 
 
-ifMap2 : a -> (b -> c -> a) -> Maybe b -> Maybe c -> Bool -> a
-ifMap2 identity toValue mb mc condition =
-    if condition then
-        case mb of
-            Just b ->
-                case mc of
-                    Just c ->
-                        toValue b c
-
-                    Nothing ->
-                        identity
-
-            Nothing ->
-                identity
+string : String -> Maybe String
+string str =
+    if String.isEmpty str then
+        Nothing
 
     else
-        identity
+        Just str
 
 
-ifMap3 : a -> (b -> c -> d -> a) -> Maybe b -> Maybe c -> Maybe d -> Bool -> a
-ifMap3 identity toValue mb mc md condition =
-    if condition then
-        case mb of
-            Just b ->
-                case mc of
-                    Just c ->
-                        case md of
-                            Just d ->
-                                toValue b c d
-
-                            Nothing ->
-                                identity
-
-                    Nothing ->
-                        identity
-
-            Nothing ->
-                identity
+list : List a -> Maybe (List a)
+list list_ =
+    if List.isEmpty list_ then
+        Nothing
 
     else
-        identity
+        Just list_
 
 
-ifMap4 : a -> (b -> c -> d -> e -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Bool -> a
-ifMap4 identity toValue mb mc md me condition =
-    if condition then
-        case mb of
-            Just b ->
-                case mc of
-                    Just c ->
-                        case md of
-                            Just d ->
-                                case me of
-                                    Just e ->
-                                        toValue b c d e
-
-                                    Nothing ->
-                                        identity
-
-                            Nothing ->
-                                identity
-
-                    Nothing ->
-                        identity
-
-            Nothing ->
-                identity
+array : Array a -> Maybe (Array a)
+array array_ =
+    if Array.isEmpty array_ then
+        Nothing
 
     else
-        identity
+        Just array_
 
 
-ifMap5 : a -> (b -> c -> d -> e -> f -> a) -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> Maybe f -> Bool -> a
-ifMap5 identity toValue mb mc md me mf condition =
-    if condition then
-        case mb of
-            Just b ->
-                case mc of
-                    Just c ->
-                        case md of
-                            Just d ->
-                                case me of
-                                    Just e ->
-                                        case mf of
-                                            Just f ->
-                                                toValue b c d e f
-
-                                            Nothing ->
-                                                identity
-
-                                    Nothing ->
-                                        identity
-
-                            Nothing ->
-                                identity
-
-                    Nothing ->
-                        identity
-
-            Nothing ->
-                identity
+dict : Dict k v -> Maybe (Dict k v)
+dict dict_ =
+    if Dict.isEmpty dict_ then
+        Nothing
 
     else
-        identity
+        Just dict_
+
+
+set : Set a -> Maybe (Set a)
+set set_ =
+    if Set.isEmpty set_ then
+        Nothing
+
+    else
+        Just set_
 
 
 css : Submodule Css.Style b c d e f
