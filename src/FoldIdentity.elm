@@ -1,11 +1,18 @@
 module FoldIdentity exposing
     ( map, map2, map3, map4, map5
-    , bool, string, list, array, dict
+    , bool, string, list, array, dict, set
     )
 
 {-|
 
+
+# Maps
+
 @docs map, map2, map3, map4, map5
+
+
+# Convert Values to `Maybe`
+
 @docs bool, string, list, array, dict, set
 
 -}
@@ -15,6 +22,29 @@ import Dict exposing (Dict)
 import Set exposing (Set)
 
 
+{-|
+
+    import FoldIdentity as F
+    import Html exposing (..)
+
+    idH =
+        text ""
+
+    -- ...
+    view model =
+        div []
+            [ someHtml
+            , F.map idH
+                (\value ->
+                    -- contitional HTML
+                )
+                model.maybeThing
+            , someMoreHtml
+            ]
+
+    -- ...
+
+-}
 map : i -> (a -> i) -> Maybe a -> i
 map =
     (>>) Maybe.map
@@ -22,6 +52,30 @@ map =
         << Maybe.withDefault
 
 
+{-|
+
+    import FoldIdentity as F
+    import Html exposing (..)
+
+    idH =
+        text ""
+
+    -- ...
+    view model =
+        div []
+            [ someHtml
+            , F.map2 idH
+                (\value _ ->
+                    -- conditional HTML
+                )
+                model.maybeThing
+                (F.bool model.boolean)
+            , someMoreHtml
+            ]
+
+    -- ...
+
+-}
 map2 : i -> (a -> b -> i) -> Maybe a -> Maybe b -> i
 map2 =
     (>>) Maybe.map2
@@ -30,6 +84,7 @@ map2 =
         << Maybe.withDefault
 
 
+{-| -}
 map3 : i -> (a -> b -> c -> i) -> Maybe a -> Maybe b -> Maybe c -> i
 map3 =
     (>>) Maybe.map3
@@ -39,6 +94,7 @@ map3 =
         << Maybe.withDefault
 
 
+{-| -}
 map4 : i -> (a -> b -> c -> d -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> i
 map4 =
     (>>) Maybe.map4
@@ -49,6 +105,7 @@ map4 =
         << Maybe.withDefault
 
 
+{-| -}
 map5 : i -> (a -> b -> c -> d -> e -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> i
 map5 =
     (>>) Maybe.map5
@@ -60,55 +117,115 @@ map5 =
         << Maybe.withDefault
 
 
+{-|
+
+    bool b =
+        if b then
+            Just b
+
+        else
+            Nothing
+
+-}
 bool : Bool -> Maybe Bool
-bool bool_ =
-    if bool_ then
-        Just bool_
+bool b =
+    if b then
+        Just b
 
     else
         Nothing
 
 
+{-|
+
+    string s =
+        if String.isEmpty s then
+            Nothing
+
+        else
+            Just s
+
+-}
 string : String -> Maybe String
-string str =
-    if String.isEmpty str then
+string s =
+    if String.isEmpty s then
         Nothing
 
     else
-        Just str
+        Just s
 
 
+{-|
+
+    list l =
+        if List.isEmpty l then
+            Nothing
+
+        else
+            Just l
+
+-}
 list : List a -> Maybe (List a)
-list list_ =
-    if List.isEmpty list_ then
+list l =
+    if List.isEmpty l then
         Nothing
 
     else
-        Just list_
+        Just l
 
 
+{-|
+
+    array a =
+        if Array.isEmpty a then
+            Nothing
+
+        else
+            Just a
+
+-}
 array : Array a -> Maybe (Array a)
-array array_ =
-    if Array.isEmpty array_ then
+array a =
+    if Array.isEmpty a then
         Nothing
 
     else
-        Just array_
+        Just a
 
 
+{-|
+
+    dict d =
+        if Dict.isEmpty d then
+            Nothing
+
+        else
+            Just d
+
+-}
 dict : Dict k v -> Maybe (Dict k v)
-dict dict_ =
-    if Dict.isEmpty dict_ then
+dict d =
+    if Dict.isEmpty d then
         Nothing
 
     else
-        Just dict_
+        Just d
 
 
+{-|
+
+    set s =
+        if Set.isEmpty s then
+            Nothing
+
+        else
+            Just s
+
+-}
 set : Set a -> Maybe (Set a)
-set set_ =
-    if Set.isEmpty set_ then
+set s =
+    if Set.isEmpty s then
         Nothing
 
     else
-        Just set_
+        Just s
