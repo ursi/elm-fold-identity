@@ -1,14 +1,14 @@
 module FoldIdentity exposing
-    ( map, map2, map3, map4, map5
+    ( maybe, maybe2, maybe3, maybe4, maybe5
     , bool, string, list, array, dict, set
     )
 
 {-|
 
 
-# Maps
+# Maybes
 
-@docs map, map2, map3, map4, map5
+@docs maybe, maybe2, maybe3, maybe4, maybe5
 
 
 # Convert Values to `Maybe`
@@ -34,7 +34,7 @@ import Set exposing (Set)
     view model =
         div []
             [ someHtml
-            , F.map idH
+            , F.maybe idH
                 (\value ->
                     -- contitional HTML
                 )
@@ -45,8 +45,8 @@ import Set exposing (Set)
     -- ...
 
 -}
-map : i -> (a -> i) -> Maybe a -> i
-map =
+maybe : i -> (a -> i) -> Maybe a -> i
+maybe =
     (>>) Maybe.map
         << (<<)
         << Maybe.withDefault
@@ -64,7 +64,7 @@ map =
     view model =
         div []
             [ someHtml
-            , F.map2 idH
+            , F.maybe2 idH
                 (\value _ ->
                     -- conditional HTML
                 )
@@ -76,8 +76,8 @@ map =
     -- ...
 
 -}
-map2 : i -> (a -> b -> i) -> Maybe a -> Maybe b -> i
-map2 =
+maybe2 : i -> (a -> b -> i) -> Maybe a -> Maybe b -> i
+maybe2 =
     (>>) Maybe.map2
         << (<<)
         << (<<)
@@ -85,8 +85,8 @@ map2 =
 
 
 {-| -}
-map3 : i -> (a -> b -> c -> i) -> Maybe a -> Maybe b -> Maybe c -> i
-map3 =
+maybe3 : i -> (a -> b -> c -> i) -> Maybe a -> Maybe b -> Maybe c -> i
+maybe3 =
     (>>) Maybe.map3
         << (<<)
         << (<<)
@@ -95,8 +95,8 @@ map3 =
 
 
 {-| -}
-map4 : i -> (a -> b -> c -> d -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> i
-map4 =
+maybe4 : i -> (a -> b -> c -> d -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> i
+maybe4 =
     (>>) Maybe.map4
         << (<<)
         << (<<)
@@ -106,8 +106,8 @@ map4 =
 
 
 {-| -}
-map5 : i -> (a -> b -> c -> d -> e -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> i
-map5 =
+maybe5 : i -> (a -> b -> c -> d -> e -> i) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> Maybe e -> i
+maybe5 =
     (>>) Maybe.map5
         << (<<)
         << (<<)
